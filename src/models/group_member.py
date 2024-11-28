@@ -12,7 +12,7 @@ class GroupMember(Base):
     role = Column(String(255), nullable=False, default='member')
     joined_at = Column(DateTime(timezone=True), nullable=False, default=func.now())
 
-    groups = relationship('Groups', back_populates='members')
-    users = relationship('Users', back_populates='group_memberships')
+    group = relationship('Group', back_populates='members')
+    user = relationship('User', back_populates='group_memberships')
 
     __table_args__ = (UniqueConstraint('group_id', 'user_id', name="unique_group_member"),)

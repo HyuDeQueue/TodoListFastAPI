@@ -1,4 +1,5 @@
 from datetime import datetime
+from email.policy import default
 
 from sqlalchemy.orm import relationship
 
@@ -12,7 +13,7 @@ class Group(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), default=func.now())
-    invite_code = Column(String(36))
+    invite_code = Column(String(36), default=lambda: str(uuid.uuid4()))
 
     members = relationship('GroupMember', back_populates='group', cascade='all, delete')
     tasks = relationship('Task', back_populates='group', cascade='all, delete')
