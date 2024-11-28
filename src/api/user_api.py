@@ -11,30 +11,6 @@ from src.services.user_service import verify_login, user_create, get_all_users, 
 
 router = APIRouter(prefix="/api/user", tags=["Users"])
 
-
-
-@router.post("/login",
-             response_model=UserResponse,
-             summary="Login user",
-             status_code=status.HTTP_200_OK)
-def user_login_endpoint(user_credentials: UserLogin ,db: Session = Depends(get_db)):
-    user = verify_login(db, user_credentials)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail= "Incorrect login information")
-    return UserResponse.model_validate(user)
-
-
-@router.post("/register",
-             response_model=UserResponse,
-             summary="Register user",
-             status_code=status.HTTP_200_OK)
-def user_register_endpoint(user_credentials: UserCredential, db: Session = Depends(get_db)):
-    user = user_create(db, user_credentials)
-    if not user:
-        raise HTTPException(status_code=400,detail= "User already exist with this email")
-    return UserResponse.model_validate(user)
-
-
 @router.get("/",
             response_model=list[UserResponse],
             summary="Get all users",
