@@ -1,0 +1,13 @@
+fastapi~=0.115.5
+python-dotenv
+sqlalchemy
+alembic
+mysql-connector-python
+passlib[bcrypt]
+pyjwt
+httpx
+pytest
+faker
+black
+flake8
+isort
