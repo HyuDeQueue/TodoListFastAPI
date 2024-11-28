@@ -1,0 +1,40 @@
+# Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# .env file (environment variables)
+.env
+
+# Database files
+*.sqlite
+*.db
+
+# Alembic configuration file (if it contains sensitive info)
+alembic.ini
+
+# Log files
+*.log
+
+# IDEs and editors
+.vscode/
+.idea/
+
+# Backup files
+*.bak
+*.swp
+
+# Coverage reports
+coverage/
+
+# Build and distribution files
+dist/
+build/
+*.egg-info/
+/.idea
+/.idea
