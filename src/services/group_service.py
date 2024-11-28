@@ -32,7 +32,7 @@ def update_group(db: Session, group_id: uuid.UUID, group_data: GroupBase) -> Typ
 def delete_group(db: Session, group_id: uuid.UUID) -> Type[Group]:
     group = db.query(Group).filter(Group.id.like(str(group_id))).first()
     if group:
-        db.delete(group)
+        group.status = 0
         db.commit()
         return group
 

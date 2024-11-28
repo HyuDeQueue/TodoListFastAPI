@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 
 from .base import Base
 import uuid
-from sqlalchemy import UUID, Column, String, DateTime, Boolean, func, ForeignKey
+from sqlalchemy import UUID, Column, String, DateTime, Boolean, func, ForeignKey, INTEGER
 
 
 class Task(Base):
@@ -17,6 +17,7 @@ class Task(Base):
     created_at = Column(DateTime(timezone=True), nullable=False, default=func.now())
     due_time = Column(DateTime(timezone=True))
     completed = Column(Boolean, default=False)
+    status = Column(INTEGER, nullable=False, default=1)
     user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
     group_id = Column(String(36), ForeignKey('groups.id'), nullable=False)
 
