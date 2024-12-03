@@ -19,7 +19,7 @@ class Task(Base):
     completed = Column(Boolean, default=False)
     status = Column(INTEGER, nullable=False, default=1)
     user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
-    group_id = Column(String(36), ForeignKey('groups.id'), nullable=False)
+    group_id = Column(String(36), ForeignKey('groups.id'))
 
     task_assignment = relationship("TaskAssignment", back_populates="tasks", cascade="all, delete-orphan")
     user = relationship("User", back_populates="tasks")

@@ -61,5 +61,3 @@ def delete_group_endpoint(group_id: uuid.UUID, db: Session = Depends(get_db)):
     group = delete_group(db, group_id)
     if not group:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found for deleting")
-    else:
-        return None

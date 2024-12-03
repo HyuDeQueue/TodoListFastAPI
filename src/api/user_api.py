@@ -51,8 +51,6 @@ def delete_user_endpoint(user_id: uuid.UUID,db: Session = Depends(get_db)):
     user = delete_user(db, user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail= "User does not exist")
-    else:
-        return None
 
 
 
