@@ -13,12 +13,16 @@ from src.services.user_service import verify_login, user_create
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 
-@router.post("/login", response_model=LoginResponse, summary="Login user", status_code=status.HTTP_200_OK)
+@router.post("/login",
+             response_model=LoginResponse,
+             summary="Login user",
+             status_code=status.HTTP_200_OK)
 def user_login_endpoint(user_credentials: UserLogin, db: Session = Depends(get_db)):
     user = verify_login(db, user_credentials)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect login information")
-
+    if user.status == 0:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is banned: "+ user.ban_reason)
     access_token = create_jwt_token(data={"sub": user.email})
 
     user_response = UserResponse.model_validate(user)

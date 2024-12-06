@@ -45,9 +45,10 @@ def update_user(db: Session, user_data: UserName, user_id: uuid.UUID) -> Type[Us
         db.refresh(found_user)
         return found_user
 
-def delete_user(db: Session, user_id: uuid.UUID) -> Type[User] | None:
+def delete_user(db: Session, user_id: uuid.UUID, ban_reason: str) -> Type[User] | None:
     found_user = db.query(User).filter(User.id.like(str(user_id))).first()
     if found_user:
+        found_user.ban_reason = ban_reason
         found_user.status = 0
         db.commit()
         return found_user
