@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 
 from .base import Base
 import uuid
-from sqlalchemy import UUID, Column, String, DateTime,func
+from sqlalchemy import UUID, Column, String, DateTime, func, ForeignKey
 
 
 class Group(Base):
@@ -14,6 +14,8 @@ class Group(Base):
     created_at = Column(DateTime(timezone=True), default=func.now())
     invite_code = Column(String(36), default=lambda: str(uuid.uuid4()))
     status = Column(INTEGER, nullable=False, default=1)
+    created_by = Column(String(36),ForeignKey('users.id'), nullable=False)
 
+    creator = relationship('User', backref="created_groups")
     members = relationship('GroupMember', back_populates='group', cascade='all, delete')
     tasks = relationship('Task', back_populates='group', cascade='all, delete')
