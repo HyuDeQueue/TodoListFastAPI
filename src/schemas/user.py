@@ -24,4 +24,4 @@ class UserResponse(UserBase):
     status: int
 
     class Config:
-        from_attributes = True
+        orm_mode = True
