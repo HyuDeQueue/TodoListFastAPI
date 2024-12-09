@@ -14,7 +14,7 @@ class GroupMemberResponse(GroupMemberBase):
     role: str
     joined_at: datetime
     class Config:
-        orm_mode: True
+        from_attributes: True
 
 class GroupMemberResponseDetail(BaseModel):
     id: str
@@ -23,4 +23,4 @@ class GroupMemberResponseDetail(BaseModel):
     joined_at: datetime
     member: UserResponse
     class Config:
-        orm_mode = True
+        from_attributes = True

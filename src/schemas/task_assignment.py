@@ -3,11 +3,11 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class taskAssignmentBase(BaseModel):
+class TaskAssignmentBase(BaseModel):
     task_id: str
     user_id: str
 
-class taskAssignmentResponse(taskAssignmentBase):
+class TaskAssignmentResponse(TaskAssignmentBase):
     id: str
     assigned_at: datetime
     class Config:

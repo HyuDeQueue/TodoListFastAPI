@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src.models import TaskAssignment
-from src.schemas.task_assignment import taskAssignmentBase
+from src.schemas.task_assignment import TaskAssignmentBase
 
 
 def assign_task(db: Session, task_id: str , user_id: str) -> TaskAssignment:
