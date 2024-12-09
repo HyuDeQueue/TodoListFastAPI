@@ -9,6 +9,7 @@ from src.models.base import get_db
 from fastapi import APIRouter, Depends
 
 from src.schemas.group_member import GroupMemberResponse, GroupMemberBase, GroupMemberResponseDetail
+from src.schemas.user import UserResponse
 from src.services.group_member_service import add_group_member, kick_member, view_members_in_group
 
 router = APIRouter(prefix="/group-member", tags=["group-member"])
@@ -40,4 +41,18 @@ def kick_group_member_endpoint(group_member_data: GroupMemberBase, db: Session =
 def view_members_endpoint(group_id: uuid.UUID ,db: Session = Depends(get_db)):
     group_members = view_members_in_group(db, str(group_id))
     if group_members:
-        return GroupMemberResponseDetail.model_validate(group_members)
+        return [
+            GroupMemberResponseDetail(
+                id=member.id,
+                group_id=member.group_id,
+                role=member.role,
+                joined_at=member.joined_at,
+                member=UserResponse(
+                    id=member.user.id,
+                    name=member.user.name,
+                    created_at=member.user.created_at,
+                    status=member.user.status,
+                ),
+            )
+            for member in group_members
+        ]
