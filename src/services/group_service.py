@@ -7,14 +7,16 @@ from sqlalchemy.orm import Session
 from src.core.constants import Status
 from src.models import Group
 from src.schemas.group import GroupBase, GroupResponse
-from src.services.group_member_service import kick_everyone_in_group
+from src.schemas.group_member import GroupMemberBase
+from src.services.group_member_service import kick_everyone_in_group, add_group_member
 
 
-def create_group(db: Session, group_data: GroupBase) -> GroupResponse:
-    new_group = Group(name=group_data.name)
+def create_group(db: Session, group_data: GroupBase, created_by: uuid.UUID) -> GroupResponse:
+    new_group = Group(name=group_data.name, created_by=str(created_by))
     db.add(new_group)
     db.commit()
     db.refresh(new_group)
+    add_group_member(db, GroupMemberBase(group_id= str(new_group.id), user_id = str(created_by)))
     return GroupResponse.model_validate(new_group)
 
 def get_all_groups(db: Session, skip: int = 0, limit: int = 10) -> list[GroupResponse]:

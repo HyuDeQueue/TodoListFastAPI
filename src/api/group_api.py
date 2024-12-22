@@ -17,9 +17,9 @@ router = APIRouter(prefix="/api/group", tags=["Groups"])
              summary="Create a group",
              status_code=status.HTTP_201_CREATED,
              dependencies=[Depends(validate_token)])
-def create_group_endpoint(group_data: GroupBase,
+def create_group_endpoint(group_data: GroupBase, created_by: uuid.UUID,
                           db: Session = Depends(get_db)):
-    return create_group(db, group_data)
+    return create_group(db, group_data, created_by)
 
 @router.get("/",
             response_model=list[GroupResponse],
