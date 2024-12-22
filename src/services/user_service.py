@@ -1,54 +1,73 @@
 import uuid
 from typing import Type, List
 
+from fastapi import HTTPException
 from passlib.handlers.bcrypt import bcrypt
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_403_FORBIDDEN
 
+from src.core.constants import Status
 from src.models import User
-from src.schemas.user import UserCredential, UserLogin, UserName
+from src.schemas.user import UserCredential, UserLogin, UserName, UserResponse
 
 
-def user_create(db: Session, user_data: UserCredential) -> User | None:
+def user_create(db: Session, user_data: UserCredential) -> UserResponse:
     user_exist = get_user_by_email(db, user_data.email)
-    if not user_exist:
+    if user_exist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail='Email already registered')
+    else:
         new_user = User(name=user_data.name, email=user_data.email, password=bcrypt.hash(user_data.password))
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return new_user
-    return None
+        return UserResponse.model_validate(new_user)
 
-def get_user_by_email(db: Session, email) -> Type[User] | None:
+def get_user_by_email(db: Session, email) -> UserResponse:
     found_user = db.query(User).filter(func.lower(User.email).like(email.lower())).first()
-    return found_user
-
-def verify_login(db: Session, user_data: UserLogin) -> User | None:
-    found_user = get_user_by_email(db, user_data.email)
     if not found_user:
-        return None
-    elif bcrypt.verify(user_data.password, found_user.password):
-        return found_user
-    return None
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail='Email not found')
+    return UserResponse.model_validate(found_user)
 
-def get_all_users(db: Session, skip: int = 0, limit: int = 10) -> list[Type[User]]:
-    return db.query(User).offset(skip).limit(limit).all()
+def verify_login(db: Session, user_data: UserLogin) -> UserResponse:
+    found_user = get_user_by_email(db, user_data.email)
+    if not bcrypt.verify(user_data.password, bytes(user_data.password, 'utf-8')):
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='Incorrect password')
+    elif found_user.status != Status.ACTIVE:
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='User is banned')
+    else:
+        return UserResponse.model_validate(found_user)
 
-def get_user_by_id(db: Session, user_id = uuid.UUID) -> Type[User] | None:
-    return db.query(User).filter(User.id.like(str(user_id))).first()
+def get_all_users(db: Session, skip: int = 0, limit: int = 10) -> list[UserResponse]:
+    users = db.query(User).offset(skip).limit(limit).all()
+    return [UserResponse.model_validate(user) for user in users]
 
-def update_user(db: Session, user_data: UserName, user_id: uuid.UUID) -> Type[User] | None:
-    found_user = db.query(User).filter(User.id.like(str(user_id))).first()
-    if found_user:
+
+def get_all_active_users(db: Session, skip: int = 0, limit: int = 10) -> list[UserResponse]:
+    users = db.query(User).offset(skip).limit(limit).filter(User.status == Status.ACTIVE.value).all()
+    return [UserResponse.model_validate(user) for user in users]
+
+def get_user_by_id(db: Session, user_id = uuid.UUID) -> UserResponse:
+    found_user = db.query(User).filter(User.id is user_id).first()
+    if not found_user:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail='User not found')
+    return UserResponse.model_validate(found_user)
+
+def update_user(db: Session, user_data: UserName, user_id: uuid.UUID) -> UserResponse:
+    found_user = db.query(User).filter(User.id is str(user_id)).first()
+    if not found_user:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail='User not found')
+    else:
         found_user.name = user_data.name
         db.commit()
         db.refresh(found_user)
-        return found_user
+        return UserResponse.model_validate(found_user)
 
-def delete_user(db: Session, user_id: uuid.UUID, ban_reason: str) -> Type[User] | None:
-    found_user = db.query(User).filter(User.id.like(str(user_id))).first()
-    if found_user:
+def delete_user(db: Session, user_id: uuid.UUID, ban_reason: str):
+    found_user = db.query(User).filter(User.id is str(user_id)).first()
+    if not found_user:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail='User not found')
+    else:
         found_user.ban_reason = ban_reason
-        found_user.status = 0
+        found_user.status = Status.DELETED.value
         db.commit()
-        return found_user

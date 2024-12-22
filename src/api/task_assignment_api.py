@@ -20,10 +20,7 @@ router = APIRouter(prefix="/api/task_assign", tags=["TaskAssignment"])
              status_code=status.HTTP_201_CREATED,
              dependencies=[Depends(validate_token)])
 def assign_member_endpoint(task_id: uuid.UUID, user_id: uuid.UUID, db: Session = Depends(get_db)):
-    assign = assign_task(db,str(task_id),str(user_id))
-    if not assign:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,detail="Unable to assign task")
-    return TaskAssignmentResponse.model_validate(assign)
+    return assign_task(db, task_id, user_id)
 
 @router.put("/update/{task_id}/{user_id}/to/{new_user_id}",
             response_model=TaskAssignmentResponse,
@@ -32,10 +29,7 @@ def assign_member_endpoint(task_id: uuid.UUID, user_id: uuid.UUID, db: Session =
             status_code=status.HTTP_200_OK,
             dependencies=[Depends(validate_token)])
 def reassign_member_endpoint(task_id: uuid.UUID, user_id: uuid.UUID, new_user_id: uuid.UUID, db:Session = Depends(get_db)):
-    assign = change_assign_user(db,str(task_id),str(user_id), str(new_user_id))
-    if not assign:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,detail="Unable to reassign task")
-    return TaskAssignmentResponse.model_validate(assign)
+    return change_assign_user(db, task_id, user_id, new_user_id)
 
 @router.delete("/delete/{task_id}/{user_id}",
                response_model=TaskAssignmentResponse,
@@ -44,10 +38,7 @@ def reassign_member_endpoint(task_id: uuid.UUID, user_id: uuid.UUID, new_user_id
                status_code=status.HTTP_200_OK,
                dependencies=[Depends(validate_token)])
 def unassign_member_endpoint(task_id: uuid.UUID, user_id: uuid.UUID, db:Session = Depends(get_db)):
-    assign = unassign_task(db,str(task_id),str(user_id))
-    if not assign:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST,detail="Unable to unassign task")
-    return taskAssignmentResponse.model_validate(assign)
+    unassign_task(db, task_id, user_id)
 
 
 

@@ -18,7 +18,6 @@ class GroupMemberResponse(GroupMemberBase):
 
 class GroupMemberResponseDetail(BaseModel):
     id: str
-    group_id: str
     role: str
     joined_at: datetime
     member: UserResponse

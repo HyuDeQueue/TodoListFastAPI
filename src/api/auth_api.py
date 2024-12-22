@@ -19,14 +19,9 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
              status_code=status.HTTP_200_OK)
 def user_login_endpoint(user_credentials: UserLogin, db: Session = Depends(get_db)):
     user = verify_login(db, user_credentials)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect login information")
-    if user.status == 0:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is banned: "+ user.ban_reason)
     access_token = create_jwt_token(data={"sub": user.email})
 
-    user_response = UserResponse.model_validate(user)
-    return LoginResponse(user=user_response, token=Token(access_token=access_token, token_type="Bearer"))
+    return LoginResponse(user=user, token=Token(access_token=access_token, token_type="Bearer"))
 
 
 @router.post("/register",
@@ -34,7 +29,4 @@ def user_login_endpoint(user_credentials: UserLogin, db: Session = Depends(get_d
              summary="Register user",
              status_code=status.HTTP_200_OK)
 def user_register_endpoint(user_credentials: UserCredential, db: Session = Depends(get_db)):
-    user = user_create(db, user_credentials)
-    if not user:
-        raise HTTPException(status_code=400,detail= "User already exist with this email")
-    return UserResponse.model_validate(user)
+    return user_create(db, user_credentials)

@@ -20,8 +20,7 @@ router = APIRouter(prefix="/api/user", tags=["Users"])
             status_code=status.HTTP_200_OK,
             dependencies=[Depends(validate_token)])
 def get_all_users_endpoint(skip: int = 0, take: int = 10 ,db: Session = Depends(get_db)):
-    users_list = get_all_users(db, skip, take)
-    return [UserResponse.model_validate(user) for user in users_list]
+    return get_all_users(db, skip, take)
 
 @router.get("/{user_id}",
             response_model=UserResponse,
@@ -29,11 +28,8 @@ def get_all_users_endpoint(skip: int = 0, take: int = 10 ,db: Session = Depends(
             status_code=status.HTTP_200_OK,
             dependencies=[Depends(validate_token)])
 def get_user_endpoint(user_id: uuid.UUID,db: Session = Depends(get_db)):
-    user = get_user_by_id(db, user_id)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail= "User does not exist")
-    else:
-        return UserResponse.model_validate(user)
+    return get_user_by_id(db, user_id)
+
 
 
 @router.put("/{user_id}",
@@ -44,20 +40,14 @@ def get_user_endpoint(user_id: uuid.UUID,db: Session = Depends(get_db)):
 def update_user_endpoint(user_id: uuid.UUID,
                          user_data: UserName,
                          db: Session = Depends(get_db)):
-    user = update_user(db, user_data, user_id)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail= "User does not exist")
-    else:
-        return UserResponse.model_validate(user)
+    return update_user(db, user_data, user_id)
 
 @router.delete("/{user_id}",
                summary="Ban a specific user",
                status_code=status.HTTP_204_NO_CONTENT,
                dependencies=[Depends(validate_token)])
 def delete_user_endpoint(user_id: uuid.UUID, ban_reason: Optional[str] = Query("Just banned", description="Reason for banning"),db: Session = Depends(get_db)):
-    user = delete_user(db, user_id, ban_reason)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail= "User does not exist")
+    delete_user(db, user_id, ban_reason)
 
 
 

@@ -21,8 +21,7 @@ router = APIRouter(prefix="/group-member", tags=["group-member"])
              description="Add a group member",
              dependencies=[Depends(validate_token)])
 def add_group_member_endpoint(group_member_data: GroupMemberBase, db: Session = Depends(get_db)):
-    new_group_member = add_group_member(db, group_member_data)
-    return GroupMemberResponse.model_validate(new_group_member)
+    return add_group_member(db, group_member_data)
 
 @router.delete("delete",
                status_code=status.HTTP_204_NO_CONTENT,
@@ -30,29 +29,13 @@ def add_group_member_endpoint(group_member_data: GroupMemberBase, db: Session = 
                description="Delete a group member",
                dependencies=[Depends(validate_token)])
 def kick_group_member_endpoint(group_member_data: GroupMemberBase, db: Session = Depends(get_db)):
-    found_group_member = kick_member(db, group_member_data)
+    kick_member(db, group_member_data)
 
 @router.get("view",
-            response_model=GroupMemberResponseDetail,
+            response_model=list[GroupMemberResponseDetail],
             status_code=status.HTTP_200_OK,
             summary="View a group member",
             description="View a group member",
             dependencies=[Depends(validate_token)])
 def view_members_endpoint(group_id: uuid.UUID ,db: Session = Depends(get_db)):
-    group_members = view_members_in_group(db, str(group_id))
-    if group_members:
-        return [
-            GroupMemberResponseDetail(
-                id=member.id,
-                group_id=member.group_id,
-                role=member.role,
-                joined_at=member.joined_at,
-                member=UserResponse(
-                    id=member.user.id,
-                    name=member.user.name,
-                    created_at=member.user.created_at,
-                    status=member.user.status,
-                ),
-            )
-            for member in group_members
-        ]
+    return view_members_in_group(db, group_id)
