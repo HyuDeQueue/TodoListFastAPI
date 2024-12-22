@@ -4,7 +4,7 @@ from typing import Type
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from src.core.constants import Status
+from src.core.constants import GeneralStatus
 from src.models import Group
 from src.schemas.group import GroupBase, GroupResponse
 from src.schemas.group_member import GroupMemberBase
@@ -20,7 +20,7 @@ def create_group(db: Session, group_data: GroupBase, created_by: uuid.UUID) -> G
     return GroupResponse.model_validate(new_group)
 
 def get_all_groups(db: Session, skip: int = 0, limit: int = 10) -> list[GroupResponse]:
-    groups = db.query(Group).offset(skip).limit(limit).filter(Group.status == Status.ACTIVE.value).all()
+    groups = db.query(Group).offset(skip).limit(limit).filter(Group.status == GeneralStatus.ACTIVE.value).all()
     return [GroupResponse.model_validate(group) for group in groups]
 
 def get_group_by_id(db: Session, group_id: uuid.UUID) -> GroupResponse:
@@ -44,7 +44,7 @@ def delete_group(db: Session, group_id: uuid.UUID):
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
     else:
-        group.status = Status.DELETED.value
+        group.status = GeneralStatus.DELETED.value
         kick_everyone_in_group(db, group_id)
         db.commit()
 

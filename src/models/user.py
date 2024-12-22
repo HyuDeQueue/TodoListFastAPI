@@ -7,7 +7,7 @@ from .base import Base
 import uuid
 from sqlalchemy import UUID, Column, String, func, DateTime, INTEGER
 
-from ..core.constants import Status
+from ..core.constants import GeneralStatus
 
 
 class User(Base):
@@ -17,7 +17,7 @@ class User(Base):
     email = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=func.now())
-    status = Column(INTEGER, nullable=False, default=Status.ACTIVE.value)
+    status = Column(INTEGER, nullable=False, default=GeneralStatus.ACTIVE.value)
     ban_reason = Column(String(255), nullable=True)
 
     tasks = relationship("Task", back_populates="user", cascade="all, delete")

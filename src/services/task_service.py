@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_404_NOT_FOUND
 
-from src.core.constants import Status
+from src.core.constants import GeneralStatus
 from src.models import Task
 from src.schemas.task import TaskCreateUser, TaskResponse, TaskCreateGroup, TaskUpdate
 
@@ -59,7 +59,7 @@ def delete_task(db: Session, task_id: uuid.UUID):
     if not task:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail='Task not found')
     if task:
-        task.status = Status.DELETED.value
+        task.status = GeneralStatus.DELETED.value
         db.commit()
 
 

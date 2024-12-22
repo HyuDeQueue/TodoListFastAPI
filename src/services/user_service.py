@@ -7,7 +7,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_403_FORBIDDEN
 
-from src.core.constants import Status
+from src.core.constants import GeneralStatus
 from src.models import User
 from src.schemas.user import UserCredential, UserLogin, UserName, UserResponse
 
@@ -33,7 +33,7 @@ def verify_login(db: Session, user_data: UserLogin) -> UserResponse:
     found_user = get_user_by_email(db, user_data.email)
     if not bcrypt.verify(user_data.password, bytes(user_data.password, 'utf-8')):
         raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='Incorrect password')
-    elif found_user.status != Status.ACTIVE:
+    elif found_user.status != GeneralStatus.ACTIVE:
         raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail='User is banned')
     else:
         return UserResponse.model_validate(found_user)
@@ -44,7 +44,7 @@ def get_all_users(db: Session, skip: int = 0, limit: int = 10) -> list[UserRespo
 
 
 def get_all_active_users(db: Session, skip: int = 0, limit: int = 10) -> list[UserResponse]:
-    users = db.query(User).offset(skip).limit(limit).filter(User.status == Status.ACTIVE.value).all()
+    users = db.query(User).offset(skip).limit(limit).filter(User.status == GeneralStatus.ACTIVE.value).all()
     return [UserResponse.model_validate(user) for user in users]
 
 def get_user_by_id(db: Session, user_id = uuid.UUID) -> UserResponse:
@@ -69,5 +69,5 @@ def delete_user(db: Session, user_id: uuid.UUID, ban_reason: str):
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail='User not found')
     else:
         found_user.ban_reason = ban_reason
-        found_user.status = Status.DELETED.value
+        found_user.status = GeneralStatus.DELETED.value
         db.commit()
