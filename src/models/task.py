@@ -8,7 +8,7 @@ from .base import Base
 import uuid
 from sqlalchemy import UUID, Column, String, DateTime, Boolean, func, ForeignKey, INTEGER
 
-from ..core.constants import GeneralStatus
+from ..core.constants import GeneralStatus, TaskPriority
 
 
 class Task(Base):
@@ -20,6 +20,7 @@ class Task(Base):
     due_time = Column(DateTime(timezone=True))
     completed = Column(Boolean, default=False)
     status = Column(INTEGER, nullable=False, default=GeneralStatus.ACTIVE.value)
+    priority = Column(INTEGER, nullable=False, default=TaskPriority.NORMAL.value)
     user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
     group_id = Column(String(36), ForeignKey('groups.id'))
 

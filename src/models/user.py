@@ -16,6 +16,7 @@ class User(Base):
     name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
+    permission = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=func.now())
     status = Column(INTEGER, nullable=False, default=GeneralStatus.ACTIVE.value)
     ban_reason = Column(String(255), nullable=True)
@@ -23,3 +24,4 @@ class User(Base):
     tasks = relationship("Task", back_populates="user", cascade="all, delete")
     group_memberships = relationship("GroupMember", back_populates="user", cascade="all, delete")
     task_assignment = relationship("TaskAssignment", back_populates="user",)
+    payments = relationship("Payment", back_populates="user", cascade="all, delete")

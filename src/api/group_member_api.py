@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends
 
 from src.schemas.group_member import GroupMemberResponse, GroupMemberBase, GroupMemberResponseDetail
 from src.schemas.user import UserResponse
-from src.services.group_member_service import add_group_member, kick_member, view_members_in_group
+from src.services.group_member_service import add_group_member, kick_member, view_members_in_group, apply_invite_code
 
 router = APIRouter(prefix="/group-member", tags=["group-member"])
 
@@ -39,3 +39,11 @@ def kick_group_member_endpoint(group_member_data: GroupMemberBase, db: Session =
             dependencies=[Depends(validate_token)])
 def view_members_endpoint(group_id: uuid.UUID ,db: Session = Depends(get_db)):
     return view_members_in_group(db, group_id)
+
+@router.post("apply_invite/{user_id}/{invite_code}",
+            status_code=status.HTTP_201_CREATED,
+            summary="Apply invite to a group member",
+            description="Apply invite to a group member",
+            dependencies=[Depends(validate_token)])
+def apply_invite_member_endpoint(user_id: uuid.UUID, invite_code: str, db: Session = Depends(get_db)):
+    apply_invite_code(db, invite_code, user_id)

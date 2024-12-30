@@ -53,3 +53,11 @@ def update_group_endpoint(group_id: uuid.UUID,
                dependencies=[Depends(validate_token)])
 def delete_group_endpoint(group_id: uuid.UUID, db: Session = Depends(get_db)):
     delete_group(db, group_id)
+
+@router.put("/{group_id}",
+            response_model=GroupResponse,
+            summary="Update a group invite code",
+            status_code=status.HTTP_200_OK,
+            dependencies=[Depends(validate_token)])
+def update_invite_code_endpoint(group_id: uuid.UUID, invite_code: str, db: Session = Depends(get_db)):
+    return change_invite_code(db, invite_code, group_id)

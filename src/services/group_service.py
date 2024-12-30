@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from src.core.constants import GeneralStatus
-from src.models import Group
+from src.models import Group, group
 from src.schemas.group import GroupBase, GroupResponse
 from src.schemas.group_member import GroupMemberBase
 from src.services.group_member_service import kick_everyone_in_group, add_group_member
@@ -48,4 +48,12 @@ def delete_group(db: Session, group_id: uuid.UUID):
         kick_everyone_in_group(db, group_id)
         db.commit()
 
+def change_invite_code(db: Session, invite_code: str, group_id: uuid.UUID) -> GroupResponse:
+    found_group = db.query(Group).filter(Group.id is str(group_id)).first()
+    if not found_group:
+        raise HTTPException(status_code=404, detail="Group not found")
+    found_group.invite_code = invite_code
+    db.commit()
+    db.refresh(found_group)
+    return GroupResponse.model_validate(found_group)
 
