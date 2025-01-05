@@ -23,6 +23,4 @@ class UserPermission(Enum):
     PREMIUM = 1
     ADMIN = 2
 
-# More ideas will be add here
-
 
