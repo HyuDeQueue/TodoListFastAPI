@@ -9,7 +9,7 @@ from src.config.security import reusable_oauth2, validate_token
 from src.models.base import get_db
 from src.schemas.task import TaskResponse, TaskCreateUser, TaskCreateGroup, TaskUpdate
 from src.services.task_service import create_task_for_user, create_task_for_group, get_task_by_id, get_tasks_by_user_id, \
-    get_tasks_by_group_id, update_task, delete_task
+    get_tasks_by_group_id, update_task, update_task_status
 
 router = APIRouter(prefix="/api/router", tags=["Task"])
 
@@ -63,9 +63,9 @@ def find_group_tasks_endpoint(group_id: uuid.UUID, db: Session = Depends(get_db)
 def update_task_endpoint(task_id: uuid.UUID, task_data: TaskUpdate, db: Session = Depends(get_db)):
     return update_task(db, task_id, task_data)
 
-@router.delete("/delete/{task_id}",
-               summary="Delete a task by id",
+@router.patch("/status/{task_id}/{task_status}",
+               summary="Change task status",
                status_code=status.HTTP_204_NO_CONTENT,
                dependencies=[Depends(validate_token)])
-def delete_task_endpoint(task_id: uuid.UUID, db: Session = Depends(get_db)):
-    delete_task(db, task_id)
+def delete_task_endpoint(task_id: uuid.UUID, task_status: int, db: Session = Depends(get_db)):
+    update_task_status(db, task_id, task_status)

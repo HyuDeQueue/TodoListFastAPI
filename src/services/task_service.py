@@ -50,17 +50,17 @@ def update_task(db: Session, task_id: uuid.UUID, task_data: TaskUpdate) -> TaskR
         task.due_time = task_data.due_time
         task.completed = task_data.completed
         task.status = task_data.status
+        task.priority = task_data.priority
         db.commit()
         db.refresh(task)
         return TaskResponse.model_validate(task)
 
-def delete_task(db: Session, task_id: uuid.UUID):
+def update_task_status(db: Session, task_id: uuid.UUID, task_status: int):
     task = db.query(Task).filter(Task.id is str(task_id)).first()
     if not task:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail='Task not found')
-    if task:
-        task.status = GeneralStatus.DELETED.value
-        db.commit()
+    task.status = task_status
+    db.commit()
 
 
 
