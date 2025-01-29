@@ -18,7 +18,6 @@ class TaskCreateGroup(TaskCreateUser):
 class TaskUpdate(TaskBase):
     completed: bool
     status: str
-    priority: int
 
 class TaskResponse(TaskBase):
     id: str
